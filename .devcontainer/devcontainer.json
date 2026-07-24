@@ -1,0 +1,27 @@
+{
+  "name": "Unity Bundle Editor",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:1": {
+      "version": "8.0",
+      "installAndroidWorkload": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-maui.maui-devtools",
+        "ms-vscode.mono-debug"
+      ],
+      "settings": {
+        "dotnet.defaultSolution": "UnityBundleEditor.sln"
+      }
+    }
+  },
+  "postCreateCommand": "dotnet restore && dotnet build src/UnityBundleEditor.Core/UnityBundleEditor.Core.csproj",
+  "forwardPorts": [],
+  "remoteUser": "root"
+}

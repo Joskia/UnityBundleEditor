@@ -43,8 +43,6 @@ bld/
 *.aab
 local.properties
 
-# Codespaces / Dev
-.devcontainer/
 
 # classdata.tpk (must be downloaded separately)
 *.tpk
