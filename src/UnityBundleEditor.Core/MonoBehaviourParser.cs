@@ -26,11 +26,11 @@ public class MonoBehaviourParser
                 return (null, null, null);
 
             // Obtener el MonoScript usando GetExtAsset
-            var extAsset = _bundle.Manager.GetExtAsset(_bundle.AssetsInstance, 0, pathId, true);
-            if (extAsset?.instance == null || extAsset.instance.GetBaseField == null)
+            var extAsset = _bundle.Manager.GetExtAsset(_bundle.AssetsInstance, 0, pathId);
+            if (extAsset.baseField == null || extAsset.file == null)
                 return (null, null, null);
 
-            var scriptBaseField = extAsset.instance.GetBaseField(_bundle.AssetsInstance, extAsset.instance);
+            var scriptBaseField = extAsset.baseField;
 
             string? className = scriptBaseField["m_ClassName"]?.AsString;
             string? nameSpace = scriptBaseField["m_Namespace"]?.AsString;

@@ -9,9 +9,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AssetsTools.NET" Version="3.0.4" />
-    <PackageReference Include="AssetsTools.NET.Cpp2IL" Version="3.0.4" />
-    <PackageReference Include="AssetsTools.NET.MonoCecil" Version="3.0.4" />
+    <!-- Using old compiled DLLs instead of NuGet packages due to API changes -->
+    <Reference Include="AssetsTools.NET">
+      <HintPath>../../bin/Debug/net8.0/AssetsTools.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.Cpp2IL">
+      <HintPath>../../bin/Debug/net8.0/AssetsTools.NET.Cpp2IL.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET.MonoCecil">
+      <HintPath>../../bin/Debug/net8.0/AssetsTools.NET.MonoCecil.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetRipper.Primitives">
+      <HintPath>../../bin/Debug/net8.0/AssetRipper.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="LibCpp2IL">
+      <HintPath>../../bin/Debug/net8.0/LibCpp2IL.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>../../bin/Debug/net8.0/Mono.Cecil.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
