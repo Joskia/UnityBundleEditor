@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UnityBundleEditor.App.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#512BD4</Color>
+            <Color x:Key="PrimaryDark">#3B1F9E</Color>
+            <Color x:Key="Secondary">#DFD8F7</Color>
+            <Color x:Key="Accent">#FF6B35</Color>
+            <Color x:Key="Surface">#1E1E2E</Color>
+            <Color x:Key="SurfaceLight">#2D2D44</Color>
+            <Color x:Key="TextPrimary">#FFFFFF</Color>
+            <Color x:Key="TextSecondary">#B0B0C0</Color>
+            <Color x:Key="Success">#4CAF50</Color>
+            <Color x:Key="Warning">#FF9800</Color>
+            <Color x:Key="Error">#F44336</Color>
+            <Color x:Key="BorderColor">#3A3A55</Color>
+
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16,10" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+
+            <Style TargetType="Entry" x:Key="FieldEntry">
+                <Setter Property="BackgroundColor" Value="{StaticResource SurfaceLight}" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextSecondary}" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

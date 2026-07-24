@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:UnityBundleEditor.App.ViewModels"
+             x:Class="UnityBundleEditor.App.MainPage"
+             BackgroundColor="#1E1E2E"
+             Title="Unity Bundle Editor">
+
+    <Grid RowDefinitions="Auto,2*,Auto,3*,Auto,Auto"
+          ColumnDefinitions="*"
+          Padding="8">
+
+        <!-- ========== TOOLBAR ========== -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" Padding="0,0,0,8">
+            <Button Grid.Column="0" Text="📂 Cargar Bundle"
+                    Style="{StaticResource PrimaryButton}"
+                    Clicked="OnLoadBundleClicked"
+                    IsEnabled="{Binding IsIdle}" />
+
+            <Button Grid.Column="1" Text="📥 Extraer Tipo"
+                    BackgroundColor="{StaticResource Success}"
+                    TextColor="White"
+                    CornerRadius="8" Padding="12,10"
+                    Margin="8,0,0,0"
+                    Clicked="OnExtractTypeClicked"
+                    IsVisible="{Binding ShowBrowser}" />
+
+            <Button Grid.Column="2" Text="📄 Dump MB"
+                    BackgroundColor="{StaticResource Warning}"
+                    TextColor="White"
+                    CornerRadius="8" Padding="12,10"
+                    Margin="8,0,0,0"
+                    Clicked="OnDumpMbClicked"
+                    IsVisible="{Binding ShowBrowser}" />
+
+            <Button Grid.Column="3" Text="💾 Guardar"
+                    BackgroundColor="{StaticResource Accent}"
+                    TextColor="White"
+                    CornerRadius="8" Padding="12,10"
+                    Margin="8,0,0,0"
+                    Clicked="OnSaveBundleClicked"
+                    IsVisible="{Binding ShowBrowser}" />
+        </Grid>
+
+        <!-- ========== ASSET BROWSER (TOP PANEL) ========== -->
+        <Grid Grid.Row="1" IsVisible="{Binding ShowBrowser}"
+              RowDefinitions="Auto,Auto,*"
+              BackgroundColor="{StaticResource Surface}"
+              Margin="0,0,0,4">
+
+            <!-- Search bar -->
+            <SearchBar Grid.Row="0"
+                       Placeholder="Buscar assets (por tipo, PathID...)"
+                       Text="{Binding SearchText}"
+                       BackgroundColor="{StaticResource SurfaceLight}"
+                       TextColor="White"
+                       PlaceholderColor="{StaticResource TextSecondary}" />
+
+            <!-- Summary bar -->
+            <Grid Grid.Row="1" Padding="12,4" BackgroundColor="{StaticResource SurfaceLight}">
+                <Label Text="{Binding Status}"
+                       TextColor="{StaticResource TextSecondary}"
+                       FontSize="12" />
+            </Grid>
+
+            <!-- Asset list -->
+            <CollectionView Grid.Row="2"
+                            ItemsSource="{Binding Assets}"
+                            SelectedItem="{Binding SelectedAsset, Mode=TwoWay}"
+                            SelectionMode="Single"
+                            BackgroundColor="Transparent">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AssetListItem">
+                        <Grid Padding="8,4" ColumnDefinitions="Auto,*,Auto,Auto"
+                              BackgroundColor="#2D2D44" Margin="0,1">
+                            <!-- Type badge -->
+                            <Frame Grid.Column="0" BackgroundColor="{Binding TypeColor}"
+                                   CornerRadius="4" Padding="4,2" HasShadow="False"
+                                   Margin="0,0,8,0">
+                                <Label Text="{Binding ClassName}" TextColor="White"
+                                       FontSize="10" />
+                            </Frame>
+                            <!-- PathID + name -->
+                            <Label Grid.Column="1" TextColor="White" FontSize="13"
+                                   VerticalOptions="Center">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="{Binding PathId, StringFormat='#{0}'}"
+                                              FontAttributes="Bold" />
+                                        <Span Text="{Binding DisplayName, StringFormat='  {0}'}"
+                                              TextColor="{StaticResource TextSecondary}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <!-- Size -->
+                            <Label Grid.Column="3" TextColor="{StaticResource TextSecondary}"
+                                   FontSize="11" VerticalOptions="Center"
+                                   Text="{Binding FileSize, StringFormat='{0} bytes'}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <Label Text="Carga un bundle para comenzar"
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           FontSize="16" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </Grid>
+
+        <!-- ========== EDITOR PANEL (BOTTOM) ========== -->
+        <Grid Grid.Row="3" IsVisible="{Binding ShowBrowser}"
+              BackgroundColor="{StaticResource Surface}"
+              Margin="0,4,0,0"
+              RowDefinitions="Auto,*">
+
+            <!-- Editor header -->
+            <Grid Grid.Row="0" Padding="12,6" BackgroundColor="{StaticResource SurfaceLight}">
+                <Label TextColor="White" FontSize="13" FontAttributes="Bold">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Editor: " />
+                            <Span Text="{Binding SelectedAsset.PathId, StringFormat='PathID #{0}'}"
+                                  TextColor="{StaticResource Accent}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Grid>
+
+            <!-- Field editors -->
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding FieldEditors}"
+                            BackgroundColor="Transparent">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:FieldEditorItem">
+                        <Grid Padding="8,2" ColumnDefinitions="Auto,*,Auto"
+                              BackgroundColor="#252535" Margin="0,1">
+
+                            <!-- Field name -->
+                            <Label Grid.Column="0" TextColor="{StaticResource TextSecondary}"
+                                   FontSize="12" VerticalOptions="Center"
+                                   WidthRequest="180"
+                                   Text="{Binding FieldName}" />
+
+                            <!-- Field value (editable) -->
+                            <Entry Grid.Column="1"
+                                   Text="{Binding Value}"
+                                   IsVisible="{Binding IsEditable}"
+                                   BackgroundColor="{StaticResource SurfaceLight}"
+                                   TextColor="White" FontSize="12" />
+
+                            <!-- Field value (readonly) -->
+                            <Label Grid.Column="1"
+                                   Text="{Binding Value}"
+                                   IsVisible="{Binding IsEditable, Converter={StaticResource InvertBool}}"
+                                   TextColor="{Binding ValueColor}"
+                                   FontSize="12" VerticalOptions="Center" />
+
+                            <!-- Type badge -->
+                            <Label Grid.Column="2" Text="{Binding FieldType}"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   FontSize="10" VerticalOptions="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <Label Text="Selecciona un asset para editarlo"
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </Grid>
+
+        <!-- ========== PROGRESS BAR ========== -->
+        <ProgressBar Grid.Row="4"
+                     Progress="{Binding ProgressValue}"
+                     ProgressColor="{StaticResource Primary}"
+                     IsVisible="{Binding IsLoading}" />
+
+        <!-- ========== LOG PANEL ========== -->
+        <Frame Grid.Row="5" BackgroundColor="{StaticResource Surface}"
+               BorderColor="{StaticResource BorderColor}"
+               Padding="4" Margin="0,4,0,0"
+               CornerRadius="4" HasShadow="False">
+            <CollectionView ItemsSource="{Binding LogEntries}" HeightRequest="80">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Label Text="{Binding .}" TextColor="#B0B0C0"
+                               FontSize="10" FontFamily="monospace" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+
+        <!-- ========== LOADING OVERLAY ========== -->
+        <Grid Grid.RowSpan="6" BackgroundColor="#80000000"
+              IsVisible="{Binding IsLoading}">
+            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   Color="{StaticResource Primary}"
+                                   HeightRequest="48" WidthRequest="48" />
+                <Label Text="{Binding Status}" TextColor="White"
+                       FontSize="14" HorizontalOptions="Center" Margin="0,8,0,0" />
+            </VerticalStackLayout>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
