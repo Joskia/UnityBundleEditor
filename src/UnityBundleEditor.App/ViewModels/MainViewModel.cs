@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
+using AssetsTools.NET;
 
 namespace UnityBundleEditor.App.ViewModels;
 
