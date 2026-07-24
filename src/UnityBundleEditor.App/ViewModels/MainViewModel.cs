@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 using Microsoft.Maui.Storage;
 
 namespace UnityBundleEditor.App.ViewModels;
@@ -239,14 +240,9 @@ public class MainViewModel : INotifyPropertyChanged
 
         try
         {
-            var result = await FolderPicker.Default.PickAsync(default);
-            // Fallback: if FolderPicker not available, use a known directory
             string outputDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Personal),
                 $"extracted_{typeName}");
-
-            if (result != null && result.IsSuccessful)
-                outputDir = result.Folder.Path;
 
             IsLoading = true;
             Status = $"Extrayendo {typeName}...";
