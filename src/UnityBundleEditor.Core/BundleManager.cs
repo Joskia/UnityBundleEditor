@@ -553,7 +553,7 @@ public class BundleManager : IDisposable
         var dirInfos = _bundleInst.file.BlockAndDirInfo.DirectoryInfos;
         foreach (var dirInfo in dirInfos)
         {
-            if (dirInfo.Name.EndsWith(".assets") || dirInfo.IsSerialized)
+            if (dirInfo.Name.EndsWith(".assets") || (dirInfo.Flags & 4) != 0)
             {
                 dirInfo.SetNewData(_assetsFile);
                 break;
