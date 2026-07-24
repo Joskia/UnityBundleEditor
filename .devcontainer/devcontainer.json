@@ -1,9 +1,9 @@
 {
-  "name": "Unity Bundle Editor",
-  "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+  "name": "Pvz Fusión Tool",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
   "features": {
     "ghcr.io/devcontainers/features/dotnet:1": {
-      "version": "8.0",
+      "version": "10.0",
       "installAndroidWorkload": true
     }
   },
@@ -21,7 +21,7 @@
       }
     }
   },
-  "postCreateCommand": "dotnet restore && dotnet build src/UnityBundleEditor.Core/UnityBundleEditor.Core.csproj",
+  "postCreateCommand": "dotnet restore && dotnet build",
   "forwardPorts": [],
   "remoteUser": "root"
 }

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0-android</TargetFrameworks>
+    <TargetFrameworks>net10.0-android</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>UnityBundleEditor.App</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -10,8 +10,8 @@
     <Nullable>enable</Nullable>
 
     <!-- App info -->
-    <ApplicationTitle>Unity Bundle Editor</ApplicationTitle>
-    <ApplicationId>com.joskia.unitybundleeditor</ApplicationId>
+    <ApplicationTitle>Pvz Fusión Tool</ApplicationTitle>
+    <ApplicationId>com.AssetTools.Joskia</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
 
@@ -19,6 +19,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.png" />
+    <MauiSplashScreen Include="Resources\Splash\splash.png" Color="#000000" BaseSize="256,256" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
     <ProjectReference Include="../UnityBundleEditor.Core/UnityBundleEditor.Core.csproj" />
   </ItemGroup>
 
