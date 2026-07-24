@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
+    <PackageReference Include="AssetsTools.NET" Version="3.0.0" />
     <ProjectReference Include="../UnityBundleEditor.Core/UnityBundleEditor.Core.csproj" />
   </ItemGroup>
 

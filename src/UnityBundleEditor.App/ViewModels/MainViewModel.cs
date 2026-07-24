@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AssetsTools.NET;
+using Microsoft.Maui.Storage;
 
 namespace UnityBundleEditor.App.ViewModels;
 
