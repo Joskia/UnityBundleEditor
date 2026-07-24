@@ -50,6 +50,11 @@ public partial class MainPage : ContentPage
         }
     }
 
+    private async void OnSetManagedClicked(object? sender, EventArgs e)
+    {
+        await _vm.SetManagedPathAsync();
+    }
+
     private async void OnSaveBundleClicked(object? sender, EventArgs e)
     {
         bool confirm = await DisplayAlert(

@@ -108,24 +108,27 @@ public class MainViewModel : INotifyPropertyChanged
             Log("Seleccionando bundle: " + bundleResult.FileName);
             Log("Cargando...");
 
-            // Pick libso/ folder (on Android we use a workaround - pick a file from managed directory)
+            // Use saved managed path if available, don't open a second picker
             string? managedPath = null;
-            try
+            string savedPath = Preferences.Get("ManagedPath", "");
+            if (!string.IsNullOrEmpty(savedPath) && Directory.Exists(savedPath))
             {
-                var folderResult = await FilePicker.Default.PickAsync(new PickOptions
-                {
-                    PickerTitle = "Selecciona global-metadata.dat o un DLL de Managed"
-                });
-
-                if (folderResult != null)
-                {
-                    managedPath = Path.GetDirectoryName(folderResult.FullPath);
-                    Log($"Managed path: {managedPath}");
-                }
+                managedPath = savedPath;
+                Log($"Usando Managed path guardado: {managedPath}");
             }
-            catch
+            else
             {
-                Log("No se selecciono carpeta Managed, los MonoBehaviours pueden no cargarse.");
+                // Try sibling folder named "Managed" next to the bundle
+                string? bundleDir = Path.GetDirectoryName(bundleResult.FullPath);
+                if (bundleDir != null)
+                {
+                    string siblingManaged = Path.Combine(bundleDir, "Managed");
+                    if (Directory.Exists(siblingManaged))
+                    {
+                        managedPath = siblingManaged;
+                        Log($"Managed path detectado: {managedPath}");
+                    }
+                }
             }
 
             // Load bundle in background
@@ -172,65 +175,184 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    public async Task SetManagedPathAsync()
+    {
+        try
+        {
+            var folderResult = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Selecciona global-metadata.dat o un DLL de la carpeta Managed"
+            });
+
+            if (folderResult == null) return;
+
+            string? managedPath = Path.GetDirectoryName(folderResult.FullPath);
+            if (managedPath == null || !Directory.Exists(managedPath))
+            {
+                Log("Ruta Managed invalida.");
+                return;
+            }
+
+            // Save to preferences for next time
+            Preferences.Set("ManagedPath", managedPath);
+            Log($"Managed path guardado: {managedPath}");
+
+            // Reload bundle with new managed path if one is loaded
+            if (_bundle != null)
+            {
+                IsLoading = true;
+                Status = "Recargando con nuevo Managed path...";
+                string currentPath = _bundle.BundlePath;
+
+                await Task.Run(() =>
+                {
+                    _bundle.Dispose();
+                    _bundle = new BundleManager(currentPath, managedPath);
+                    _bundle.OnLog += msg =>
+                    {
+                        MainThread.BeginInvokeOnMainThread(() => Log(msg));
+                    };
+                    _bundle.OnProgress += progress =>
+                    {
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            ProgressValue = progress;
+                            IsProgressIndeterminate = false;
+                        });
+                    };
+                });
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Status = "Bundle recargado con Managed path.";
+                    Log("Bundle recargado con nuevo Managed path.");
+                    IsProgressIndeterminate = false;
+                    ProgressValue = 0;
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"Error seleccionando Managed path: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     public void PopulateAssets()
     {
         if (_bundle == null) return;
 
-        Assets.Clear();
-        TotalAssets = _bundle.AssetsFile.AssetInfos.Count;
-
-        foreach (var info in _bundle.AssetsFile.AssetInfos)
+        try
         {
-            string className = ((AssetClassID)info.TypeId).ToString();
-            Assets.Add(new AssetListItem
+            Assets.Clear();
+            var assetInfos = _bundle.AssetsFile?.AssetInfos;
+            if (assetInfos == null)
             {
-                PathId = info.PathId,
-                TypeId = info.TypeId,
-                ClassName = className,
-                FileSize = info.ByteSize,
-                DisplayName = $"#{info.PathId} ({info.ByteSize} bytes)",
-                TypeColor = GetTypeColor(className)
-            });
-        }
+                Log("Advertencia: AssetInfos es null en el bundle cargado.");
+                return;
+            }
 
-        FilteredCount = Assets.Count;
-        Status = $"{Assets.Count} assets cargados";
+            TotalAssets = assetInfos.Count;
+
+            foreach (var info in assetInfos)
+            {
+                string className = ((AssetClassID)info.TypeId).ToString();
+                Assets.Add(new AssetListItem
+                {
+                    PathId = info.PathId,
+                    TypeId = info.TypeId,
+                    ClassName = className,
+                    FileSize = info.ByteSize,
+                    DisplayName = $"#{info.PathId} ({info.ByteSize} bytes)",
+                    TypeColor = GetTypeColor(className)
+                });
+            }
+
+            FilteredCount = Assets.Count;
+            Status = $"{Assets.Count} assets cargados";
+        }
+        catch (Exception ex)
+        {
+            Log($"Error cargando assets: {ex.Message}");
+        }
     }
 
     public void PopulateTypes()
     {
         if (_bundle == null) return;
 
-        AssetTypes.Clear();
-        var grouped = _bundle.AssetsFile.AssetInfos
-            .GroupBy(a => a.TypeId)
-            .Select(g => new AssetTypeGroup
-            {
-                TypeId = g.Key,
-                ClassName = ((AssetClassID)g.Key).ToString(),
-                Count = g.Count(),
-                TotalSize = g.Sum(a => (long)a.ByteSize)
-            })
-            .OrderByDescending(x => x.Count);
+        try
+        {
+            AssetTypes.Clear();
+            var assetInfos = _bundle.AssetsFile?.AssetInfos;
+            if (assetInfos == null) return;
 
-        foreach (var t in grouped)
-            AssetTypes.Add(t);
+            var grouped = assetInfos
+                .GroupBy(a => a.TypeId)
+                .Select(g => new AssetTypeGroup
+                {
+                    TypeId = g.Key,
+                    ClassName = ((AssetClassID)g.Key).ToString(),
+                    Count = g.Count(),
+                    TotalSize = g.Sum(a => (long)a.ByteSize)
+                })
+                .OrderByDescending(x => x.Count);
+
+            foreach (var t in grouped)
+                AssetTypes.Add(t);
+        }
+        catch (Exception ex)
+        {
+            Log($"Error cargando tipos: {ex.Message}");
+        }
     }
 
     public void PopulateBundleFiles()
     {
         if (_bundle == null) return;
 
-        BundleFiles.Clear();
-        var dirInfos = _bundle.BundleInstance.file.BlockAndDirInfo.DirectoryInfos;
-        for (int i = 0; i < dirInfos.Count; i++)
+        try
         {
-            BundleFiles.Add(new BundleFileItem
+            BundleFiles.Clear();
+
+            // Safely navigate the bundle file structure
+            var bundleInst = _bundle.BundleInstance;
+            if (bundleInst?.file == null)
             {
-                Index = i,
-                Name = dirInfos[i].Name,
-                Size = dirInfos[i].DecompressedSize
-            });
+                Log("Advertencia: BundleInstance.file es null.");
+                return;
+            }
+
+            var blockDir = bundleInst.file.BlockAndDirInfo;
+            if (blockDir == null)
+            {
+                Log("Advertencia: BlockAndDirInfo es null en el bundle.");
+                return;
+            }
+
+            var dirInfos = blockDir.DirectoryInfos;
+            if (dirInfos == null)
+            {
+                Log("Advertencia: DirectoryInfos es null en el bundle.");
+                return;
+            }
+
+            for (int i = 0; i < dirInfos.Count; i++)
+            {
+                BundleFiles.Add(new BundleFileItem
+                {
+                    Index = i,
+                    Name = dirInfos[i].Name,
+                    Size = dirInfos[i].DecompressedSize
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"Error cargando archivos del bundle: {ex.Message}");
         }
     }
 

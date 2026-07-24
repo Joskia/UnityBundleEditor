@@ -11,13 +11,21 @@
           Padding="8">
 
         <!-- ========== TOOLBAR ========== -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" Padding="0,0,0,8">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto" Padding="0,0,0,8">
             <Button Grid.Column="0" Text="📂 Cargar Bundle"
                     Style="{StaticResource PrimaryButton}"
                     Clicked="OnLoadBundleClicked"
                     IsEnabled="{Binding IsIdle}" />
 
-            <Button Grid.Column="1" Text="📥 Extraer Tipo"
+            <Button Grid.Column="1" Text="📁 Managed"
+                    BackgroundColor="{StaticResource SurfaceLight}"
+                    TextColor="White"
+                    CornerRadius="8" Padding="12,10"
+                    Margin="8,0,0,0"
+                    Clicked="OnSetManagedClicked"
+                    IsVisible="{Binding ShowBrowser}" />
+
+            <Button Grid.Column="2" Text="📥 Extraer Tipo"
                     BackgroundColor="{StaticResource Success}"
                     TextColor="White"
                     CornerRadius="8" Padding="12,10"
@@ -25,7 +33,7 @@
                     Clicked="OnExtractTypeClicked"
                     IsVisible="{Binding ShowBrowser}" />
 
-            <Button Grid.Column="2" Text="📄 Dump MB"
+            <Button Grid.Column="3" Text="📄 Dump MB"
                     BackgroundColor="{StaticResource Warning}"
                     TextColor="White"
                     CornerRadius="8" Padding="12,10"
@@ -33,7 +41,7 @@
                     Clicked="OnDumpMbClicked"
                     IsVisible="{Binding ShowBrowser}" />
 
-            <Button Grid.Column="3" Text="💾 Guardar"
+            <Button Grid.Column="4" Text="💾 Guardar"
                     BackgroundColor="{StaticResource Accent}"
                     TextColor="White"
                     CornerRadius="8" Padding="12,10"
